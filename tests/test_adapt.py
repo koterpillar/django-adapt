@@ -3,7 +3,9 @@
 import unittest
 
 from adapt import Object, string
+
 from .utils import test_person
+
 
 class TestObject(unittest.TestCase):
 
