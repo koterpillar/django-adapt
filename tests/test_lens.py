@@ -1,30 +1,10 @@
 """Test lenses."""
 
 import unittest
-from typing import Optional
 
 from adapt.lens import Attribute
 
-
-class Address:
-    """
-    Sample address class.
-
-    Real addresses aren't as simple as a street and a number, and a "street
-    number" isn't really a number anyway.
-    """
-
-    def __init__(self, street: str, number: int) -> None:
-        self.street = street
-        self.number = number
-
-class Person:
-    """Sample person class."""
-
-    def __init__(self, name: str, email: str, address: Optional[Address] = None) -> None:
-        self.name = name
-        self.email = email
-        self.address = address
+from .utils import test_person
 
 
 class TestAttribute(unittest.TestCase):
@@ -32,7 +12,7 @@ class TestAttribute(unittest.TestCase):
     def test_lens(self) -> None:
         name = Attribute('name')
 
-        person = Person("Ayano", "ayano@naver.com")
+        person = test_person()
         self.assertEqual(name.get(person), "Ayano")
 
         person_ = name.set(person, "Nocchi")
@@ -44,13 +24,12 @@ class TestCompose(unittest.TestCase):
     def test_lens(self) -> None:
         address_lens = Attribute('address')
         number = Attribute('number')
-        address_number = address_lens * number
+        address = address_lens * number
 
-        address = Address("Banpo", 12)
-        person = Person("Ayano", "ayano@naver.com", address)
+        person = test_person()
 
-        self.assertEqual(address_number.get(person), 12)
+        self.assertEqual(address.get(person), 12)
 
-        person_ = address_number.set(person, 14)
+        person_ = address.set(person, 14)
         assert person_.address is not None
         self.assertEqual(person_.address.number, 14)
