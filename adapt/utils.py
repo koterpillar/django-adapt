@@ -2,7 +2,6 @@
 
 from typing import Any
 
-
 WRONG_TYPE_MESSAGE = "Expected type {expected}, got a value of type {actual}."
 
 def validate_type(expected: type, value: Any) -> None:
