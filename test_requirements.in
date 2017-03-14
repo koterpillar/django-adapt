@@ -1,3 +1,4 @@
+Django
 isort
 mypy
 -e git+https://github.com/PyCQA/astroid.git#egg=astroid

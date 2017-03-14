@@ -23,3 +23,5 @@ class Typed(Lens):
 
 
 string = Typed(str)
+
+integer = Typed(int)

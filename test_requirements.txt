@@ -6,6 +6,7 @@
 #
 -e git+https://github.com/PyCQA/astroid.git#egg=astroid
 -e git+https://github.com/PyCQA/pylint.git#egg=pylint
+Django==1.10.6
 editdistance==0.3.1
 isort==4.2.5
 lazy-object-proxy==1.2.2
