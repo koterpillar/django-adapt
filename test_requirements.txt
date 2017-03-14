@@ -4,12 +4,13 @@
 #
 #    pip-compile --output-file test_requirements.txt test_requirements.in
 #
-astroid==1.4.9            # via pylint
-isort==4.2.5              # via pylint
-lazy-object-proxy==1.2.2  # via astroid
-mccabe==0.6.1             # via pylint
+-e git+https://github.com/PyCQA/astroid.git#egg=astroid
+-e git+https://github.com/PyCQA/pylint.git#egg=pylint
+editdistance==0.3.1
+isort==4.2.5
+lazy-object-proxy==1.2.2
+mccabe==0.6.1
 mypy==0.501
-pylint==1.6.5
-six==1.10.0               # via astroid, pylint
+six==1.10.0
 typed-ast==1.0.2          # via mypy
-wrapt==1.10.8             # via astroid
+wrapt==1.10.8

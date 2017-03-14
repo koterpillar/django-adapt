@@ -1,2 +1,4 @@
+isort
 mypy
-pylint
+-e git+https://github.com/PyCQA/astroid.git#egg=astroid
+-e git+https://github.com/PyCQA/pylint.git#egg=pylint

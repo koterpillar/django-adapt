@@ -33,5 +33,9 @@ if __name__ == '__main__':
             install_requires=[],
 
             test_suite='tests',
-            tests_require=test_requirements.readlines(),
+            tests_require=[
+                requirement
+                for requirement in test_requirements.readlines()
+                if not requirement.startswith('-e ')
+            ],
         )
