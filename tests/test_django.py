@@ -7,7 +7,7 @@ import django  # type: ignore
 from django.core.management import call_command  # type: ignore
 
 from adapt import integer, string
-from adapt.django import Model
+from adapt.django import Model, QuerySet
 
 
 class TestDjango(unittest.TestCase):
@@ -18,7 +18,19 @@ class TestDjango(unittest.TestCase):
 
         with open('/dev/null', 'w') as null:
             call_command('check', verbosity=0, stdout=null)
-        call_command('migrate', run_syncdb=True, verbosity=0)
+        call_command('migrate', run_syncdb=True, interactive=False, verbosity=0)
+        call_command('flush', interactive=False, verbosity=0)
+
+        self.address = Model({
+            'street': string,
+            'number': integer,
+        })
+
+        self.user = Model({
+            'name': string,
+            'email': string,
+            'address': self.address,
+        })
 
     def test_model(self) -> None:
         """Test updating a model."""
@@ -30,17 +42,12 @@ class TestDjango(unittest.TestCase):
             number=12,
         )
 
-        address = Model({
-            'street': string,
-            'number': integer,
-        })
-
-        self.assertEqual(address.get(address_obj), {
+        self.assertEqual(self.address.get(address_obj), {
             'street': "Banpo",
             'number': 12,
         })
 
-        address_obj_ = address.set(address_obj, {
+        address_obj_ = self.address.set(address_obj, {
             'street': "Gangnam",
             'number': 25,
         })
@@ -66,16 +73,7 @@ class TestDjango(unittest.TestCase):
             address=address_obj,
         )
 
-        user = Model({
-            'name': string,
-            'email': string,
-            'address': Model({
-                'street': string,
-                'number': integer,
-            }),
-        })
-
-        self.assertEqual(user.get(user_obj), {
+        self.assertEqual(self.user.get(user_obj), {
             'name': "Ayano",
             'email': "ayano@example.com",
             'address': {
@@ -84,7 +82,7 @@ class TestDjango(unittest.TestCase):
             },
         })
 
-        user_obj_ = user.set(user_obj, {
+        user_obj_ = self.user.set(user_obj, {
             'name': "Nocchi",
             'email': "nocchi@example.com",
             'address': {
@@ -98,3 +96,32 @@ class TestDjango(unittest.TestCase):
         # Old address must have been updated in-place
         address_obj.refresh_from_db()
         self.assertEqual(address_obj.street, "Gangnam")
+
+    def test_queryset(self) -> None:
+        """Test queryset lens."""
+
+        from .sample_app.models import Address
+
+        address_qs = QuerySet(self.address)
+
+        Address.objects.create(
+            pk=10,
+            street="Banpo",
+            number=12,
+        )
+        Address.objects.create(
+            pk=20,
+            street="Gangnam",
+            number=25,
+        )
+
+        self.assertEqual(address_qs.get(Address.objects.all()), {
+            10: {
+                'street': "Banpo",
+                'number': 12,
+            },
+            20: {
+                'street': "Gangnam",
+                'number': 25,
+            },
+        })
