@@ -56,9 +56,11 @@ class Attribute(Lens):
 class Object(Lens):
     """Lens converting object's attributes to a dictionary."""
 
+    pointer = Attribute
+
     def __init__(self, attributes: Dict[str, Lens]) -> None:
         self.attributes = {
-            attribute: Attribute(attribute) * lens
+            attribute: self.pointer(attribute) * lens
             for attribute, lens in attributes.items()
         }
 
