@@ -5,6 +5,7 @@ import unittest
 
 import django  # type: ignore
 from django.core.management import call_command  # type: ignore
+from django.forms import model_to_dict  # type: ignore
 
 from adapt import integer, string
 from adapt.django import Model, QuerySet
@@ -115,13 +116,48 @@ class TestDjango(unittest.TestCase):
             number=25,
         )
 
-        self.assertEqual(address_qs.get(Address.objects.all()), {
-            10: {
+        self.assertEqual(address_qs.get(Address.objects.all()), [
+            (10, {
                 'street': "Banpo",
                 'number': 12,
-            },
-            20: {
+            }),
+            (20, {
                 'street': "Gangnam",
                 'number': 25,
-            },
+            }),
+        ])
+
+        address_qs.set(Address.objects.all(), [
+            # This object is preserved, with properties changed
+            (10, {
+                'street': "Banpo",
+                'number': 15,
+            }),
+            # 20 is missing from the queryset and will be deleted
+            # 30 is a new object with a PK given
+            (30, {
+                'street': "Chenggyecheon",
+                'number': 70,
+            }),
+            # This is a new object with a PK assigned automatically
+            (None, {
+                'street': "Sejong",
+                'number': 50,
+            }),
+        ])
+
+        self.assertEqual(Address.objects.count(), 3)
+        addr1, addr2, addr3 = Address.objects.all().order_by('street')
+        self.assertEqual(model_to_dict(addr1), {
+            'id': 10,
+            'street': "Banpo",
+            'number': 15,
         })
+        self.assertEqual(model_to_dict(addr2), {
+            'id': 30,
+            'street': "Chenggyecheon",
+            'number': 70,
+        })
+        # This new object has a PK assigned automatically
+        self.assertEqual(addr3.street, "Sejong")
+        self.assertEqual(addr3.number, 50)

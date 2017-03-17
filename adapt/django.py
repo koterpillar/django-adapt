@@ -1,9 +1,11 @@
 """Adapters for Django models."""
 
-from typing import Any
+from operator import attrgetter
+from typing import Any, List
 
 from .lens import Lens, Object
 from .transaction import atomic, on_commit
+from .utils import validate_type
 
 
 class Model(Object):
@@ -17,6 +19,9 @@ class Model(Object):
         return target_
 
 
+GET_PK = attrgetter('pk')
+
+
 class QuerySet(Lens):
     """A lens for querysets."""
 
@@ -24,11 +29,38 @@ class QuerySet(Lens):
         self.model = model
 
     def get(self, target: Any) -> Any:
-        return {
-            instance.pk: self.model.get(instance)
+        return [
+            (instance.pk, self.model.get(instance))
             for instance in target
-        }
+        ]
 
     @atomic
     def set(self, target: Any, value: Any) -> Any:
-        raise NotImplementedError
+        validate_type(list, value)
+
+        existing: List[Any] = []
+
+        for key, item in value:
+            if key is None:
+                # Create a new model instance with no explicit PK
+                instance = target.model()
+            else:
+                try:
+                    # Get the existing model instance
+                    instance = target.get(pk=key)
+                except target.model.DoesNotExist:
+                    # Create a new model instance with explicit PK
+                    instance = target.model(pk=key)
+
+            instance_ = self.model.set(instance, item)
+
+            # Remember the instance, not to delete it
+            existing.append(instance_)
+
+        def cleanup() -> None:
+            """Remove models omitted from the value."""
+            target.exclude(pk__in=map(GET_PK, existing)).delete()
+
+        on_commit(cleanup)
+
+        return target
