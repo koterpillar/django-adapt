@@ -85,6 +85,38 @@ class TestTransaction(unittest.TestCase):
             "outer 3",
         ])
 
+    def test_on_commit_unrelated_error(self) -> None:
+        """Test commit hooks behavior on unrelated errors."""
+
+        log: Log = []
+
+        class CustomException(Exception):
+            pass
+
+        @atomic
+        def fail() -> None:
+            raise CustomException
+
+        with self.assertRaises(CustomException):
+            fail()
+
+        simple_action(log, "A")
+
+        self.assertEqual(log, [
+            "A 1",
+            "A 2",
+            "A commit",
+        ])
+
+        log = []
+
+        with self.assertRaises(ValidationError):
+            simple_action(log, "A", error="error")
+
+        self.assertEqual(log, [
+            "A 1",
+        ])
+
 
 class TestErrors(unittest.TestCase):
     """Test error gathering."""

@@ -60,13 +60,15 @@ class TransactionState:
             try:
                 self.active = True
                 result = action(*args, **kwargs)
-                self.active = False
 
             except:
                 # Error (other than validation error) occured, leave the
                 # transaction and reset hooks
                 self.hooks = []
                 raise
+
+            finally:
+                self.active = False
 
             if self.errors is not None:
                 self.hooks = []
