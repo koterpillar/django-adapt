@@ -37,20 +37,3 @@ class Composed(Lens):
         inner_target = self.outer.get(target)
         inner_target_ = self.inner.set(inner_target, value)
         return self.outer.set(target, inner_target_)
-
-
-class Maybe(Lens):
-    """Lens identical to a given one, but passing None through unchanged."""
-
-    def __init__(self, base: Lens) -> None:
-        self.base = base
-
-    def get(self, target: Any) -> Any:
-        if target is None:
-            return None
-        return self.base.get(target)
-
-    def set(self, target: Any, value: Any) -> Any:
-        if value is None:
-            return None
-        return self.base.set(target, value)
