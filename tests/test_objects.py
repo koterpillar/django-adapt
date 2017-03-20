@@ -2,7 +2,8 @@
 
 import unittest
 
-from adapt import Maybe, Object, string
+from adapt.objects import Attribute, Object
+from adapt.primitives import string
 
 from .utils import test_person
 
@@ -31,15 +32,13 @@ class TestObject(unittest.TestCase):
         self.assertEqual(person_obj_.email, "nocchi@naver.com")
 
 
-class TestMaybe(unittest.TestCase):
+class TestAttribute(unittest.TestCase):
 
     def test_lens(self) -> None:
-        lens = Maybe(string)
+        name = Attribute('name')
 
-        self.assertEqual(lens.get("hello"), "hello")
-        self.assertEqual(lens.get(None), None)
+        person = test_person()
+        self.assertEqual(name.get(person), "Ayano")
 
-        self.assertEqual(lens.set("hello", None), None)
-        self.assertEqual(lens.set("hello", "world"), "world")
-        self.assertEqual(lens.set(None, None), None)
-        self.assertEqual(lens.set(None, "world"), "world")
+        person_ = name.set(person, "Nocchi")
+        self.assertEqual(person_.name, "Nocchi")

@@ -2,21 +2,11 @@
 
 import unittest
 
-from adapt.lens import Attribute
+from adapt.lens import Maybe
+from adapt.objects import Attribute
+from adapt.primitives import string
 
 from .utils import test_person
-
-
-class TestAttribute(unittest.TestCase):
-
-    def test_lens(self) -> None:
-        name = Attribute('name')
-
-        person = test_person()
-        self.assertEqual(name.get(person), "Ayano")
-
-        person_ = name.set(person, "Nocchi")
-        self.assertEqual(person_.name, "Nocchi")
 
 
 class TestCompose(unittest.TestCase):
@@ -33,3 +23,17 @@ class TestCompose(unittest.TestCase):
         person_ = address.set(person, 14)
         assert person_.address is not None
         self.assertEqual(person_.address.number, 14)
+
+
+class TestMaybe(unittest.TestCase):
+
+    def test_lens(self) -> None:
+        lens = Maybe(string)
+
+        self.assertEqual(lens.get("hello"), "hello")
+        self.assertEqual(lens.get(None), None)
+
+        self.assertEqual(lens.set("hello", None), None)
+        self.assertEqual(lens.set("hello", "world"), "world")
+        self.assertEqual(lens.set(None, None), None)
+        self.assertEqual(lens.set(None, "world"), "world")

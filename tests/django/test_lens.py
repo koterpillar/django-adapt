@@ -36,7 +36,7 @@ class TestDjango(unittest.TestCase):
     def test_model(self) -> None:
         """Test updating a model."""
 
-        from .sample_app.models import Address
+        from tests.sample_app.models import Address
 
         address_obj = Address.objects.create(
             street="Banpo",
@@ -62,7 +62,7 @@ class TestDjango(unittest.TestCase):
     def test_nested(self) -> None:
         """Test updating a nested model."""
 
-        from .sample_app.models import Address, User
+        from tests.sample_app.models import Address, User
 
         address_obj = Address.objects.create(
             street="Banpo",
@@ -101,7 +101,7 @@ class TestDjango(unittest.TestCase):
     def test_queryset(self) -> None:
         """Test queryset lens."""
 
-        from .sample_app.models import Address
+        from tests.sample_app.models import Address
 
         address_qs = QuerySet(self.address)
 

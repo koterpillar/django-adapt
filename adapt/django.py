@@ -3,7 +3,8 @@
 from operator import attrgetter
 from typing import Any, List
 
-from .lens import Lens, Object
+from .lens import Lens
+from .objects import Object
 from .transaction import atomic, on_commit
 from .utils import validate_type
 
